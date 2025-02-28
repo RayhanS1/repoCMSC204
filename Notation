@@ -1,0 +1,106 @@
+package src;
+
+public class Notation {
+   public static String convertInfixToPostfix(String infix) throws InvalidNotationFormatException, StackUnderflowException, QueueOverflowException, StackOverflowException {
+       MyQueue<String> postQueue = new MyQueue<>(infix.length());
+       MyStack<Character> opStack = new MyStack<>(infix.length());
+      
+       for (int i = 0; i < infix.length(); i++) {
+           char tempChar = infix.charAt(i);
+           if (Character.isDigit(tempChar)) {
+               postQueue.enqueue(String.valueOf(tempChar));
+           } else if (tempChar == '(') {
+               opStack.push(tempChar);
+           } else if (tempChar == ')') {
+               while (!opStack.isEmpty() && opStack.top() != '(') {
+                   postQueue.enqueue(String.valueOf(opStack.pop()));
+               }
+               if (opStack.isEmpty()) {
+                   throw new InvalidNotationFormatException();
+               }
+               opStack.pop(); 
+           } else if (isOperator(tempChar)) {
+               while (!opStack.isEmpty() && precedence(opStack.top()) >= precedence(tempChar)) {
+                   postQueue.enqueue(String.valueOf(opStack.pop()));
+               }
+               opStack.push(tempChar);
+           }
+       }
+       while (!opStack.isEmpty()) {
+           char topOp = opStack.pop();
+           if (topOp == '(') throw new InvalidNotationFormatException();
+           postQueue.enqueue(String.valueOf(topOp));
+       }
+       return postQueue.toString();
+   }
+   public static String convertPostfixToInfix(String postfix) throws InvalidNotationFormatException, StackOverflowException, StackUnderflowException {
+       MyStack<String> infixStack = new MyStack<>(postfix.length());
+      
+       for (int i = 0; i < postfix.length(); i++) {
+           char tempChar = postfix.charAt(i);
+           if (Character.isDigit(tempChar)) {
+               infixStack.push(String.valueOf(tempChar));
+           } else if (isOperator(tempChar)) {
+               if (infixStack.size() < 2) {
+                   throw new InvalidNotationFormatException();
+               }
+               String secondOperand = infixStack.pop();
+               String firstOp = infixStack.pop();
+               String infixExpression = "(" + firstOp + tempChar + secondOperand + ")";
+               infixStack.push(infixExpression);
+           }
+       }
+       if (infixStack.size() != 1) {
+           throw new InvalidNotationFormatException();
+       }
+       return infixStack.pop();
+   }
+   
+   public static double evaluatePostfixExpression(String postfix) throws InvalidNotationFormatException, StackOverflowException, StackUnderflowException {
+       MyStack<Double> evalStack = new MyStack<>(postfix.length());
+      
+       for (int i = 0; i < postfix.length(); i++) {
+           char tempChar = postfix.charAt(i);
+           if (Character.isDigit(tempChar)) {
+               evalStack.push((double) (tempChar - '0'));
+           } else if (isOperator(tempChar)) {
+               if (evalStack.size() < 2) {
+                   throw new InvalidNotationFormatException();
+              }
+              double secondOperand = evalStack.pop();
+              double firstOp = evalStack.pop();
+              double result = performOperation(firstOp, secondOperand, tempChar);
+              evalStack.push(result);
+           }
+       }
+      if (evalStack.size() != 1) {
+          throw new InvalidNotationFormatException();
+      }
+      return evalStack.pop();
+   }
+   private static boolean isOperator(char character) {
+       return character == '+' || character == '-' || character == '*' || character == '/';
+   }
+   private static int precedence(char operands) {
+       switch (operands) {
+           case '+':
+           case '-':
+              return 1;
+           case '*':
+           case '/':
+              return 2;
+           default:
+              return -1;
+       }
+   }
+   private static double performOperation(double var1, double var2, char operator) throws InvalidNotationFormatException {
+       switch (operator) {
+          case '+': return var1 + var2;
+          case '-': return var1 - var2;
+          case '*': return var1 * var2;
+          case '/': return var1 / var2;
+          default: throw new InvalidNotationFormatException();
+       }
+   }
+}
+
