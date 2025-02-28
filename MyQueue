@@ -1,0 +1,117 @@
+package src;
+import java.util.ArrayList;
+
+@SuppressWarnings("unchecked")
+public class MyQueue<T> implements QueueInterface<T> {
+private T[] queue;
+private int head;
+private int tail;
+private int size;
+private int numOfElements;
+	
+
+	public MyQueue() {
+		this.queue= (T[]) new Object[size];
+		this.head = 0;
+		this.tail = 0;
+		this.numOfElements = 0;
+	}
+	
+	public MyQueue(int size) {
+	this.size = size; 
+    this.queue= (T[]) new Object[size];
+	this.head = 0;
+	this.tail = -1;
+	this.numOfElements = 0;
+	} 
+
+	public boolean isEmpty() {
+		if(numOfElements == 0) {
+			return true;
+		} else {
+		return false;
+		}
+	}
+	
+	
+	public boolean isFull() {
+		if(numOfElements == size) {
+			return true;
+		} else {
+		return false;
+		}
+	}
+	
+	
+	public T dequeue() throws QueueUnderflowException {
+		if (isEmpty()) {
+			throw new QueueUnderflowException();
+		}
+		T node = queue[head];
+		queue[head] = null;
+		head++;
+		numOfElements--;
+		return node;
+	}
+	
+	
+	public int size() {
+		return numOfElements;
+	}
+	
+	public boolean enqueue(T e) throws QueueOverflowException {
+		if(isFull() == true) {
+			throw new QueueOverflowException();
+		}
+
+		tail++; 
+		queue[tail] = e;
+		numOfElements++;
+		return true;
+	}
+	
+	public String toString() {
+		StringBuffer queueBuffer = new StringBuffer(); 
+		for (int i = head + 1; i < tail; i++) { 
+			queueBuffer.append(queue[i] + " "); 
+		}
+		return queueBuffer.toString().trim(); // trim so that u can remove the trailing white space
+	}
+	
+	@Override
+	public String toString(String delimiter) {
+		if(isEmpty() == true) {
+			return ""; //to string will be empty if nothing is in the queue
+		}
+	StringBuilder allElements = new StringBuilder();
+	for(int i = head; i <= tail; i++) {
+		if(queue[i] != null) {
+			if(i != head) {
+				allElements.append(delimiter);
+			}
+			allElements.append(queue[i]);
+		}
+	}
+	return allElements.toString().trim();
+}
+	
+	@Override
+	public void fill(ArrayList<T> list) {
+		ArrayList<T> newCopy = new ArrayList<>(list);
+		
+	for(int i = 0; i < newCopy.size(); i++) {
+		if(isFull() == false) {
+			try {
+				enqueue(newCopy.get(i));
+			}
+		 catch (QueueOverflowException qofe) {
+			
+		 		}
+			}
+		}
+	}	
+
+}
+
+	
+
